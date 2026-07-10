@@ -188,27 +188,30 @@ if (mongoUri && mongoUri.trim() !== '') {
   loadLocalDB();
 }
 
-// Ensure default local admin exists
+// Ensure default admin exists
 (async () => {
-  loadLocalDB();
-  const adminExists = dbData.users.find(u => u.username === 'admin');
-  if (!adminExists) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('admin123', salt);
-    dbData.users.push({
-      _id: 'admin_id',
-      id: 'admin_id',
-      username: 'admin',
-      password: hashedPassword,
-      gender: 'other',
-      country: 'LY',
-      isVIP: true,
-      isAdmin: true,
-      isBanned: false,
-      createdAt: new Date()
-    });
-    saveLocalDB();
-    console.log('Default Local Admin Account Created: admin / admin123');
+  // Wait 3 seconds to ensure database connection is ready
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  try {
+    const adminExists = await UserWrapper.findOne({ username: 'admin' });
+    if (!adminExists) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('admin123', salt);
+      await UserWrapper.create({
+        username: 'admin',
+        password: hashedPassword,
+        gender: 'other',
+        country: 'LY',
+        isVIP: true,
+        vipExpiry: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000), // 100 years
+        hasVipStar: true,
+        isAdmin: true,
+        isBanned: false
+      });
+      console.log('Default Admin Account Created: admin / admin123');
+    }
+  } catch (err) {
+    console.error('Error creating default admin account:', err);
   }
 })();
 
