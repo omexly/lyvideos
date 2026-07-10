@@ -397,6 +397,44 @@ window.quickUnban = async function(username) {
   }
 };
 
+// Change Admin Password function
+const changePassSubmitBtn = document.getElementById('change-pass-submit-btn');
+const adminCurrentPasswordInput = document.getElementById('admin-current-password');
+const adminNewPasswordInput = document.getElementById('admin-new-password');
+
+if (changePassSubmitBtn) {
+  changePassSubmitBtn.addEventListener('click', async () => {
+    const currentPassword = adminCurrentPasswordInput.value.trim();
+    const newPassword = adminNewPasswordInput.value.trim();
+
+    if (!currentPassword || !newPassword) {
+      showToast('يرجى ملء جميع حقول كلمة المرور.', 'danger');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'تم تغيير كلمة المرور بنجاح.');
+        adminCurrentPasswordInput.value = '';
+        adminNewPasswordInput.value = '';
+      } else {
+        showToast(data.error || 'حدث خطأ في عملية التغيير.', 'danger');
+      }
+    } catch (err) {
+      showToast('خطأ في الاتصال بالخادم', 'danger');
+    }
+  });
+}
+
 // Initialize admin panel
 fetchStats();
 fetchReports();

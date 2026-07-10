@@ -32,6 +32,18 @@
 }
 
 html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Cairo', 'Outfit', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* Target ONLY index.html body to prevent scrolling and viewport jumping */
+html.chat-page-html, body.chat-page-body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -39,10 +51,7 @@ html, body {
   overflow: hidden; /* يمنع التمرير والاهتزاز بالكامل */
 }
 
-body {
-  font-family: 'Cairo', 'Outfit', sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
+body.chat-page-body {
   display: flex;
   flex-direction: column;
   position: fixed; /* يمنع اهتزاز الشاشة على هواتف الايفون والاندرويد */

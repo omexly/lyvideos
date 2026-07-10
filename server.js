@@ -281,7 +281,28 @@ app.post('/api/admin/update-vip', authenticateToken, requireAdmin, async (req, r
     res.status(500).json({ error: 'Error updating VIP status' });
   }
 });
+app.post('/api/admin/change-password', authenticateToken, requireAdmin, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'يرجى تقديم كلمة المرور الحالية والجديدة.' });
+  }
 
+  try {
+    const admin = await User.findById(req.user._id || req.user.id);
+    const isMatch = await bcrypt.compare(currentPassword, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'كلمة المرور الحالية غير صحيحة.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await User.updateOne({ _id: admin._id || admin.id }, { password: hashedPassword });
+    res.json({ message: 'تم تغيير كلمة المرور للمدير بنجاح.' });
+  } catch (err) {
+    res.status(500).json({ error: 'حدث خطأ أثناء تغيير كلمة المرور.' });
+  }
+});
 // --- Matchmaking & Signaling logic ---
 let matchmakingQueue = [];
 const activeConnections = new Map(); // socket.id -> partnerSocket
