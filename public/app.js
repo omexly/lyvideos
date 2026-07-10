@@ -619,5 +619,24 @@ function getCountryNameAr(code) {
   return names[code] || code || 'مجهول';
 }
 
+// Mobile Overlay Toggles
+const mobileChatToggle = document.getElementById('mobile-chat-toggle');
+const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+const floatingChat = document.querySelector('.floating-chat');
+const floatingFilters = document.querySelector('.floating-filters');
+
+if (mobileChatToggle && mobileFilterToggle) {
+  mobileChatToggle.addEventListener('click', () => {
+    floatingChat.classList.toggle('open');
+    floatingFilters.classList.remove('open');
+  });
+
+  mobileFilterToggle.addEventListener('click', () => {
+    floatingFilters.classList.toggle('open');
+    floatingChat.classList.remove('open');
+  });
+}
+
 // Start auto login verification
 autoLogin();
+
