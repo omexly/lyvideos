@@ -226,6 +226,8 @@ function setupAdminSockets() {
 
 // --- User Management Logic ---
 let allUsers = [];
+let currentPage = 1;
+const itemsPerPage = 10;
 const usersList = document.getElementById('users-list');
 const userSearchInput = document.getElementById('user-search-input');
 
