@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OME TV Premium | دردشة فيديو عشوائية</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Animated Gradients -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fa-solid fa-video logo-icon"></i>
+        <span>OME<span class="logo-highlight">TV</span> <span class="premium-badge-text">PREMIUM</span></span>
+      </div>
+      
+      <div class="nav-actions">
+        <!-- Guest Mode Details -->
+        <div id="user-profile" class="user-profile hidden">
+          <span id="user-badge" class="vip-badge"><i class="fa-solid fa-crown"></i> VIP</span>
+          <span id="username-display" class="username">زائر</span>
+          <button id="admin-btn" class="btn-admin hidden"><i class="fa-solid fa-user-shield"></i> لوحة التحكم</button>
+          <button id="logout-btn" class="btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+        
+        <div id="auth-buttons" class="auth-buttons">
+          <button id="open-auth-btn" class="btn-primary"><i class="fa-solid fa-user-plus"></i> تسجيل الدخول / حساب جديد</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    <div class="video-section">
+      <div class="video-grid">
+        <!-- Remote Video (Partner) -->
+        <div class="video-card remote-card" id="remote-video-container">
+          <video id="remote-video" autoplay playsinline></video>
+          
+          <!-- Video Overlay Info -->
+          <div class="video-overlay top-left" id="remote-info">
+            <span class="flag-icon" id="remote-flag">🌐</span>
+            <span id="remote-username">جاري البحث عن شريك...</span>
+            <span id="remote-vip-tag" class="vip-tag-small hidden"><i class="fa-solid fa-crown"></i> VIP</span>
+          </div>
+          
+          <!-- Searching Loader -->
+          <div class="searching-loader" id="searching-loader">
+            <div class="radar">
+              <div class="ring"></div>
+              <div class="ring"></div>
+              <div class="ring"></div>
+              <i class="fa-solid fa-user-astronaut search-icon"></i>
+            </div>
+            <p class="loader-text">ابحث عن أشخاص جدد وتحدث معهم فوراً...</p>
+          </div>
+        </div>
+
+        <!-- Local Video (You) -->
+        <div class="video-card local-card">
+          <video id="local-video" autoplay playsinline muted></video>
+          
+          <div class="video-overlay top-right">
+            <span class="user-status-dot"></span>
+            <span>أنت (You)</span>
+          </div>
+
+          <!-- Video Controls overlaid on local video -->
+          <div class="media-toggles">
+            <button id="toggle-cam" class="media-btn active" title="تشغيل/إيقاف الكاميرا">
+              <i class="fa-solid fa-video"></i>
+            </button>
+            <button id="toggle-mic" class="media-btn active" title="كتم/تشغيل الصوت">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Overlays -->
+
+      <!-- Chat Overlay (Bottom Left) -->
+      <div class="card chat-card floating-chat">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-comments"></i> المحادثة النصية</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="system-message">مرحباً بك في OME TV Premium! اضغط على "بدء الدردشة" للبدء بالحديث عشوائياً.</div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." disabled>
+          <button id="chat-send-btn" class="btn-send" disabled><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+      <!-- Filters Overlay (Bottom Right) -->
+      <div class="card filter-card floating-filters">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-sliders"></i> فلاتر البحث عشوائي</h3>
+        </div>
+        <div class="card-body">
+          <!-- VIP Premium Upgrade banner inside filters -->
+          <div id="vip-promo" class="vip-promo-banner">
+            <div class="vip-promo-header">
+              <i class="fa-solid fa-gem vip-gem-icon"></i>
+              <h4>ميزات VIP</h4>
+            </div>
+            <p>تفعيل فلترة الجنس والبلد!</p>
+            <button id="upgrade-vip-btn" class="btn-vip-upgrade"><i class="fa-solid fa-crown"></i> تفعيل VIP مجاناً للتجربة</button>
+          </div>
+
+          <div class="filter-group">
+            <label>الجنس المستهدف:</label>
+            <div class="gender-selector-container">
+              <div class="vip-lock-overlay" id="gender-lock">
+                <i class="fa-solid fa-lock"></i>
+                <span>للأعضاء VIP</span>
+              </div>
+              <div class="gender-options">
+                <input type="radio" name="gender-filter" id="filter-all" value="all" checked>
+                <label for="filter-all">الكل</label>
+                
+                <input type="radio" name="gender-filter" id="filter-male" value="male">
+                <label for="filter-male">ذكور</label>
+                
+                <input type="radio" name="gender-filter" id="filter-female" value="female">
+                <label for="filter-female">إناث</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="country-filter">الدولة المستهدفة:</label>
+            <div class="country-selector-container">
+              <div class="vip-lock-overlay" id="country-lock">
+                <i class="fa-solid fa-lock"></i>
+                <span>للأعضاء VIP</span>
+              </div>
+              <select id="country-filter" class="select-input">
+                <option value="all">كل العالم 🌐</option>
+                <option value="LY">ليبيا 🇱🇾</option>
+                <option value="EG">مصر 🇪🇬</option>
+                <option value="SA">السعودية 🇸🇦</option>
+                <option value="DZ">الجزائر 🇩🇿</option>
+                <option value="MA">المغرب 🇲🇦</option>
+                <option value="TN">تونس 🇹🇳</option>
+                <option value="IQ">العراق 🇮🇶</option>
+                <option value="AE">الإمارات 🇦🇪</option>
+                <option value="US">الولايات المتحدة 🇺🇸</option>
+                <option value="GB">المملكة المتحدة 🇬🇧</option>
+                <option value="FR">فرنسا 🇫🇷</option>
+                <option value="DE">ألمانيا 🇩🇪</option>
+                <option value="TR">تركيا 🇹🇷</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Controls Bar (Bottom Center) -->
+      <div class="controls-bar floating-controls">
+        <button id="stop-btn" class="btn-danger btn-large hidden" title="إيقاف المحادثة">
+          <i class="fa-solid fa-stop"></i> إيقاف
+        </button>
+        
+        <button id="start-btn" class="btn-success btn-large" title="بدء المحادثة العشوائية">
+          <i class="fa-solid fa-play"></i> بدء الدردشة
+        </button>
+
+        <button id="next-btn" class="btn-primary btn-large btn-glow" disabled title="الانتقال للمستخدم التالي">
+          <span>التالي</span> <i class="fa-solid fa-forward"></i>
+        </button>
+
+        <button id="report-btn" class="btn-warning" disabled title="الإبلاغ عن سلوك غير لائق">
+          <i class="fa-solid fa-triangle-exclamation"></i> إبلاغ
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- Auth Modal (Login/Register) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-container">
+      <button class="modal-close" id="close-auth-modal"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login">تسجيل الدخول</button>
+        <button class="auth-tab" id="tab-register">إنشاء حساب جديد</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-username">اسم المستخدم</label>
+          <input type="text" id="login-username" class="form-input" placeholder="أدخل اسم المستخدم" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">كلمة المرور</label>
+          <input type="password" id="login-password" class="form-input" placeholder="أدخل كلمة المرور" required>
+        </div>
+        <div class="error-msg" id="login-error"></div>
+        <button type="submit" class="btn-primary w-full mt-4"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form hidden">
+        <div class="form-group">
+          <label for="reg-username">اسم المستخدم</label>
+          <input type="text" id="reg-username" class="form-input" placeholder="اسم مستخدم فريد" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">كلمة المرور</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="لا تقل عن 6 أحرف" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-gender">الجنس</label>
+            <select id="reg-gender" class="form-input" required>
+              <option value="male">ذكر (Male)</option>
+              <option value="female">أنثى (Female)</option>
+              <option value="other">آخر (Other)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="reg-country">الدولة</label>
+            <select id="reg-country" class="form-input" required>
+              <option value="LY">ليبيا 🇱🇾</option>
+              <option value="EG">مصر 🇪🇬</option>
+              <option value="SA">السعودية 🇸🇦</option>
+              <option value="DZ">الجزائر 🇩🇿</option>
+              <option value="MA">المغرب 🇲🇦</option>
+              <option value="TN">تونس 🇹🇳</option>
+              <option value="IQ">العراق 🇮🇶</option>
+              <option value="AE">الإمارات 🇦🇪</option>
+              <option value="US">الولايات المتحدة 🇺🇸</option>
+              <option value="GB">المملكة المتحدة 🇬🇧</option>
+              <option value="FR">فرنسا 🇫🇷</option>
+              <option value="DE">ألمانيا 🇩🇪</option>
+              <option value="TR">تركيا 🇹🇷</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="error-msg" id="register-error"></div>
+        <button type="submit" class="btn-primary w-full mt-4"><i class="fa-solid fa-user-plus"></i> إنشاء حساب</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal-container">
+      <button class="modal-close" id="close-report-modal"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-triangle-exclamation text-warning"></i> الإبلاغ عن هذا المستخدم</h3>
+      <p class="modal-desc">ساعدنا في الحفاظ على مجتمع آمن. يرجى اختيار سبب الإبلاغ:</p>
+      
+      <div class="report-options">
+        <button class="report-opt-btn" data-reason="سلوك غير لائق أو عري">عري أو محتوى جنسي غير لائق</button>
+        <button class="report-opt-btn" data-reason="مضايقة أو إساءة لفظية">مضايقة، تهديد أو إساءة لفظية</button>
+        <button class="report-opt-btn" data-reason="مستخدم قاصر أو غير بالغ">المستخدم يبدو قاصراً (تحت السن القانوني)</button>
+        <button class="report-opt-btn" data-reason="سلوك عنصري أو خطاب كراهية">سلوك عنصري أو خطاب كراهية</button>
+        <button class="report-opt-btn" data-reason="أخرى">أخرى / سلوك غير مسموح به</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Frontend Javascript -->
+  <script src="app.js"></script>
+</body>
+</html>
