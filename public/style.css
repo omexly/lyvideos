@@ -31,15 +31,25 @@
   padding: 0;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* يمنع التمرير والاهتزاز بالكامل */
+}
+
 body {
   font-family: 'Cairo', 'Outfit', sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-main);
-  overflow-x: hidden;
-  height: 100vh;
   display: flex;
   flex-direction: column;
+  position: fixed; /* يمنع اهتزاز الشاشة على هواتف الايفون والاندرويد */
+  width: 100%;
+  height: 100%;
 }
+
 
 /* Background animated glow balls */
 .bg-glow-1, .bg-glow-2 {
