@@ -33,9 +33,18 @@ const authenticateToken = (req, res, next) => {
   jwt.verify(token, JWT_SECRET, async (err, decoded) => {
     if (err) return res.status(403).json({ error: 'Invalid token' });
     try {
-      const user = await User.findById(decoded.id);
+      let user = await User.findById(decoded.id);
       if (!user) return res.status(404).json({ error: 'User not found' });
       if (user.isBanned) return res.status(403).json({ error: 'Your account has been banned!' });
+      
+      // Dynamic VIP Expiry Check
+      if (user.isVIP && user.vipExpiry && new Date(user.vipExpiry) < new Date()) {
+        user.isVIP = false;
+        user.hasVipStar = false;
+        user.vipExpiry = null;
+        await User.findByIdAndUpdate(user._id || user.id, { isVIP: false, hasVipStar: false, vipExpiry: null });
+      }
+
       req.user = user;
       next();
     } catch (dbErr) {
@@ -73,12 +82,14 @@ app.post('/api/auth/register', async (req, res) => {
       gender,
       country,
       isVIP: false,
+      vipExpiry: null,
+      hasVipStar: false,
       isAdmin: false,
       isBanned: false
     });
 
     const token = jwt.sign({ id: user._id || user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { username: user.username, gender: user.gender, country: user.country, isVIP: user.isVIP, isAdmin: user.isAdmin } });
+    res.status(201).json({ token, user: { username: user.username, gender: user.gender, country: user.country, isVIP: user.isVIP, hasVipStar: user.hasVipStar, vipExpiry: user.vipExpiry, isAdmin: user.isAdmin } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error registering user' });
@@ -107,7 +118,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id || user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { username: user.username, gender: user.gender, country: user.country, isVIP: user.isVIP, isAdmin: user.isAdmin } });
+    res.json({ token, user: { username: user.username, gender: user.gender, country: user.country, isVIP: user.isVIP, hasVipStar: user.hasVipStar, vipExpiry: user.vipExpiry, isAdmin: user.isAdmin } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error logging in' });
@@ -120,6 +131,8 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
     gender: req.user.gender,
     country: req.user.country,
     isVIP: req.user.isVIP,
+    hasVipStar: req.user.hasVipStar,
+    vipExpiry: req.user.vipExpiry,
     isAdmin: req.user.isAdmin
   });
 });
@@ -127,8 +140,18 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 app.post('/api/auth/upgrade-vip', authenticateToken, async (req, res) => {
   try {
     const userId = req.user._id || req.user.id;
-    const updatedUser = await User.findByIdAndUpdate(userId, { isVIP: true }, { new: true });
-    res.json({ message: 'Upgraded to VIP successfully!', isVIP: updatedUser.isVIP });
+    const oneMonth = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const updatedUser = await User.findByIdAndUpdate(userId, { 
+      isVIP: true, 
+      vipExpiry: oneMonth,
+      hasVipStar: true 
+    }, { new: true });
+    res.json({ 
+      message: 'Upgraded to VIP successfully!', 
+      isVIP: updatedUser.isVIP,
+      hasVipStar: updatedUser.hasVipStar,
+      vipExpiry: updatedUser.vipExpiry
+    });
   } catch (err) {
     res.status(500).json({ error: 'Error upgrading to VIP' });
   }
@@ -204,6 +227,61 @@ app.post('/api/admin/dismiss-report', authenticateToken, requireAdmin, async (re
   }
 });
 
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({});
+    const safeUsers = users.map(u => ({
+      id: u._id || u.id,
+      username: u.username,
+      gender: u.gender,
+      country: u.country,
+      isVIP: u.isVIP || false,
+      vipExpiry: u.vipExpiry || null,
+      hasVipStar: u.hasVipStar || false,
+      isAdmin: u.isAdmin || false,
+      isBanned: u.isBanned || false,
+      createdAt: u.createdAt
+    }));
+    res.json(safeUsers);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching users' });
+  }
+});
+
+app.post('/api/admin/update-vip', authenticateToken, requireAdmin, async (req, res) => {
+  const { username, isVIP, vipDuration, hasVipStar } = req.body;
+  try {
+    let vipExpiry = null;
+    const now = new Date();
+    
+    if (isVIP) {
+      if (vipDuration === '1w') {
+        vipExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      } else if (vipDuration === '1m') {
+        vipExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      } else if (vipDuration === '6m') {
+        vipExpiry = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000);
+      } else if (vipDuration === 'forever') {
+        vipExpiry = new Date(now.getTime() + 100 * 365 * 24 * 60 * 60 * 1000);
+      }
+    }
+
+    const updateFields = {
+      isVIP: !!isVIP,
+      vipExpiry: isVIP ? vipExpiry : null,
+      hasVipStar: isVIP ? !!hasVipStar : false
+    };
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    await User.updateOne({ username }, updateFields);
+    res.json({ message: `تم تحديث اشتراك VIP للمستخدم ${username} بنجاح.` });
+  } catch (err) {
+    res.status(500).json({ error: 'Error updating VIP status' });
+  }
+});
+
 // --- Matchmaking & Signaling logic ---
 let matchmakingQueue = [];
 const activeConnections = new Map(); // socket.id -> partnerSocket
@@ -265,7 +343,8 @@ const tryMatchUser = (socket) => {
           username: candData.username,
           gender: candData.gender,
           country: candData.country,
-          isVIP: candData.isVIP
+          isVIP: candData.isVIP,
+          hasVipStar: candData.hasVipStar || false
         }
       });
 
@@ -275,7 +354,8 @@ const tryMatchUser = (socket) => {
           username: myData.username,
           gender: myData.gender,
           country: myData.country,
-          isVIP: myData.isVIP
+          isVIP: myData.isVIP,
+          hasVipStar: myData.hasVipStar || false
         }
       });
 
@@ -309,6 +389,7 @@ io.on('connection', (socket) => {
             gender: user.gender,
             country: user.country,
             isVIP: user.isVIP,
+            hasVipStar: user.hasVipStar || false,
             filters: user.isVIP ? (data.filters || { gender: 'all', country: 'all' }) : { gender: 'all', country: 'all' }
           };
         }

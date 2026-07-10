@@ -1,0 +1,24 @@
+{
+  "name": "KSAD LY",
+  "short_name": "KSAD LY",
+  "description": "Premium Random Video Chat | دردشة فيديو عشوائية فاخرة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090e",
+  "theme_color": "#07090e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/pwa_icon_192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa_icon_512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}

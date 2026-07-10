@@ -224,10 +224,188 @@ function setupAdminSockets() {
   });
 }
 
+// --- User Management Logic ---
+let allUsers = [];
+const usersList = document.getElementById('users-list');
+const userSearchInput = document.getElementById('user-search-input');
+
+const vipModal = document.getElementById('vip-modal');
+const closeVipModal = document.getElementById('close-vip-modal');
+const cancelVipBtn = document.getElementById('cancel-vip-btn');
+const vipForm = document.getElementById('vip-form');
+const vipTargetUsername = document.getElementById('vip-target-username');
+const vipModalUserTitle = document.getElementById('vip-modal-user-title');
+const vipIsVipCheckbox = document.getElementById('vip-is-vip');
+const vipDurationGroup = document.getElementById('vip-duration-group');
+const vipDurationSelect = document.getElementById('vip-duration');
+const vipHasStarCheckbox = document.getElementById('vip-has-star');
+
+// Fetch and display all users
+async function fetchUsers() {
+  try {
+    const res = await fetch('/api/admin/users', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    allUsers = await res.json();
+    displayUsers(allUsers);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+  }
+}
+
+// Render users into the table
+function displayUsers(users) {
+  usersList.innerHTML = '';
+  if (users.length === 0) {
+    usersList.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; color: var(--text-muted);">لا يوجد مستخدمين مطابقين للبحث.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  users.forEach(u => {
+    const row = document.createElement('tr');
+    
+    // Status Badge
+    let statusBadge = '<span class="action-badge" style="background: rgba(255,255,255,0.05); color: #fff;">عضو عادي</span>';
+    if (u.isAdmin) {
+      statusBadge = '<span class="action-badge" style="background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.4);">مدير</span>';
+    } else if (u.isBanned) {
+      statusBadge = '<span class="action-badge danger">محظور (Banned)</span>';
+    } else if (u.isVIP) {
+      statusBadge = '<span class="action-badge success">VIP نشط</span>';
+    }
+
+    // Expiry Date representation
+    let expiryText = '-';
+    if (u.isVIP && u.vipExpiry) {
+      expiryText = new Date(u.vipExpiry).toLocaleDateString('ar-LY');
+    }
+
+    // Star status
+    const starIcon = u.hasVipStar 
+      ? '<span class="text-warning" style="font-weight: 700;"><i class="fa-solid fa-star"></i> نعم</span>' 
+      : '<span style="color: var(--text-muted);">لا</span>';
+
+    row.innerHTML = `
+      <td style="font-weight: 600;">${u.username}</td>
+      <td>${u.country} / ${u.gender === 'male' ? 'ذكر' : u.gender === 'female' ? 'أنثى' : 'آخر'}</td>
+      <td>${statusBadge}</td>
+      <td>${expiryText}</td>
+      <td>${starIcon}</td>
+      <td>
+        <button class="btn-primary btn-sm" onclick="openVipModalForUser('${u.username}', ${u.isVIP}, '${u.vipExpiry}', ${u.hasVipStar})" style="padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; margin-left: 5px; cursor: pointer;">
+          <i class="fa-solid fa-crown"></i> تعديل VIP
+        </button>
+        ${u.isBanned 
+          ? `<button class="btn-success btn-sm" onclick="quickUnban('${u.username}')" style="padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-user-check"></i> إلغاء الحظر</button>`
+          : `<button class="btn-danger btn-sm" onclick="quickBan('${u.username}')" style="padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-ban"></i> حظر</button>`
+        }
+      </td>
+    `;
+    usersList.appendChild(row);
+  });
+}
+
+// User Search Handler
+userSearchInput.addEventListener('input', (e) => {
+  const term = e.target.value.trim().toLowerCase();
+  if (!term) {
+    displayUsers(allUsers);
+    return;
+  }
+  const filtered = allUsers.filter(u => u.username.toLowerCase().includes(term));
+  displayUsers(filtered);
+});
+
+// Open VIP Modal
+window.openVipModalForUser = function(username, isVIP, vipExpiry, hasVipStar) {
+  vipTargetUsername.value = username;
+  vipModalUserTitle.textContent = `اسم المستخدم: ${username}`;
+  vipIsVipCheckbox.checked = isVIP;
+  vipHasStarCheckbox.checked = hasVipStar;
+  
+  toggleVipDurationFields();
+  vipModal.classList.add('open');
+};
+
+function toggleVipDurationFields() {
+  if (vipIsVipCheckbox.checked) {
+    vipDurationGroup.style.display = 'block';
+    vipStarGroup.style.display = 'block';
+  } else {
+    vipDurationGroup.style.display = 'none';
+    vipStarGroup.style.display = 'none';
+  }
+}
+
+vipIsVipCheckbox.addEventListener('change', toggleVipDurationFields);
+
+const closeModalFunc = () => {
+  vipModal.classList.remove('open');
+};
+
+closeVipModal.addEventListener('click', closeModalFunc);
+cancelVipBtn.addEventListener('click', closeModalFunc);
+
+// Submit VIP Update Form
+vipForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = vipTargetUsername.value;
+  const isVIP = vipIsVipCheckbox.checked;
+  const vipDuration = vipDurationSelect.value;
+  const hasVipStar = vipHasStarCheckbox.checked;
+
+  try {
+    const res = await fetch('/api/admin/update-vip', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, isVIP, vipDuration, hasVipStar })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(data.message || 'تم تحديث اشتراك VIP بنجاح.');
+      closeModalFunc();
+      fetchUsers();
+      fetchStats();
+    } else {
+      showToast(data.error || 'حدث خطأ في عملية التحديث.', 'danger');
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال بالخادم', 'danger');
+  }
+});
+
+// Quick Ban/Unban helpers
+window.quickBan = async function(username) {
+  if (confirm(`هل تريد حظر المستخدم ${username}؟`)) {
+    await banUser(username);
+    fetchUsers();
+  }
+};
+
+window.quickUnban = async function(username) {
+  if (confirm(`هل تريد إلغاء حظر المستخدم ${username}؟`)) {
+    await unbanUser(username);
+    fetchUsers();
+  }
+};
+
 // Initialize admin panel
 fetchStats();
 fetchReports();
+fetchUsers();
 setupAdminSockets();
 
-// Periodically refresh stats (every 10 seconds)
-setInterval(fetchStats, 10000);
+// Periodically refresh stats and user list
+setInterval(() => {
+  fetchStats();
+  fetchUsers();
+}, 10000);
+

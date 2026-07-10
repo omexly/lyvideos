@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>KSAD LY Premium | دردشة فيديو عشوائية</title>
+  <title>KSAD LY | دردشة فيديو عشوائية</title>
+  <meta name="theme-color" content="#07090e">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <!-- Apple touch icon -->
+  <link rel="apple-touch-icon" href="/pwa_icon_192.png">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +29,7 @@
     <div class="nav-container">
       <div class="logo">
         <i class="fa-solid fa-video logo-icon"></i>
-        <span>KSAD<span class="logo-highlight">LY</span> <span class="premium-badge-text">PREMIUM</span></span>
+        <span>KSAD <span class="logo-highlight">LY</span> <span class="premium-badge-text">CHAT</span></span>
       </div>
       
       <div class="nav-actions">
@@ -108,7 +113,7 @@
           <button class="panel-close-btn" id="close-chat-btn" title="إغلاق"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="chat-messages" id="chat-messages">
-          <div class="system-message">مرحباً بك في KSAD LY Premium! اضغط على "بدء الدردشة" للبدء بالحديث عشوائياً.</div>
+          <div class="system-message">مرحباً بك في KSAD LY! اضغط على "بدء الدردشة" للبدء بالحديث عشوائياً.</div>
         </div>
         <div class="chat-input-area">
           <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا..." disabled>
@@ -292,9 +297,91 @@
     </div>
   </div>
 
+  <!-- PWA Install Modal -->
+  <div id="pwa-install-modal" class="pwa-modal hidden">
+    <div class="pwa-modal-content">
+      <div class="pwa-header">
+        <img src="/pwa_icon_192.png" alt="KSAD LY Icon" class="pwa-app-icon">
+        <div class="pwa-info">
+          <h4>تطبيق KSAD LY</h4>
+          <p>ثبّت التطبيق الآن على شاشتك الرئيسية لتجربة دردشة أسرع وأسهل!</p>
+        </div>
+      </div>
+      <div class="pwa-body" id="pwa-ios-instructions" style="display: none;">
+        <p class="ios-instruction-text"><i class="fa-solid fa-share-from-square"></i> اضغط على زر <strong>"مشاركة"</strong> في متصفح Safari.</p>
+        <p class="ios-instruction-text"><i class="fa-solid fa-square-plus"></i> ثم اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong>.</p>
+      </div>
+      <div class="pwa-footer">
+        <button id="pwa-install-btn" class="btn-primary btn-pwa-install"><i class="fa-solid fa-download"></i> تثبيت التطبيق</button>
+        <button id="pwa-close-btn" class="btn-secondary btn-pwa-close">لاحقاً</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Socket.io -->
   <script src="/socket.io/socket.io.js"></script>
   <!-- Frontend Javascript -->
   <script src="app.js"></script>
+
+  <!-- PWA & Service Worker Registration Script -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('ServiceWorker registered', reg))
+          .catch(err => console.log('ServiceWorker registration failed', err));
+      });
+    }
+
+    let deferredPrompt;
+    const pwaModal = document.getElementById('pwa-install-modal');
+    const pwaInstallBtn = document.getElementById('pwa-install-btn');
+    const pwaCloseBtn = document.getElementById('pwa-close-btn');
+    const iosInstructions = document.getElementById('pwa-ios-instructions');
+
+    const isIos = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test(userAgent);
+    };
+    
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      if (!isInStandaloneMode() && !localStorage.getItem('pwa-prompt-dismissed')) {
+        pwaModal.classList.remove('hidden');
+        iosInstructions.style.display = 'none';
+        pwaInstallBtn.style.display = 'flex';
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (isIos() && !isInStandaloneMode() && !localStorage.getItem('pwa-prompt-dismissed')) {
+        pwaModal.classList.remove('hidden');
+        iosInstructions.style.display = 'block';
+        pwaInstallBtn.style.display = 'none';
+      }
+    });
+
+    pwaInstallBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User choice: ${outcome}`);
+        deferredPrompt = null;
+      }
+      pwaModal.classList.add('hidden');
+    });
+
+    pwaCloseBtn.addEventListener('click', () => {
+      pwaModal.classList.add('hidden');
+      localStorage.setItem('pwa-prompt-dismissed', 'true');
+      setTimeout(() => {
+        localStorage.removeItem('pwa-prompt-dismissed');
+      }, 24 * 60 * 60 * 1000); // 1 day dismissal
+    });
+  </script>
 </body>
 </html>

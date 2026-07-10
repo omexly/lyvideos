@@ -66,6 +66,8 @@ class LocalUserModel {
       _id: Date.now().toString(),
       id: Date.now().toString(),
       isVIP: false,
+      vipExpiry: null,
+      hasVipStar: false,
       isAdmin: false,
       isBanned: false,
       createdAt: new Date(),
@@ -146,6 +148,8 @@ const UserSchema = new mongoose.Schema({
   gender: { type: String, required: true },
   country: { type: String, required: true },
   isVIP: { type: Boolean, default: false },
+  vipExpiry: { type: Date, default: null },
+  hasVipStar: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
   isBanned: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }

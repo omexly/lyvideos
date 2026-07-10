@@ -1,4 +1,4 @@
-// KSAD LY Premium - Frontend Logic
+// OME TV Premium - Frontend Logic
 let localStream = null;
 let remoteStream = null;
 let peerConnection = null;
@@ -86,6 +86,13 @@ function initSocket() {
     
     if (data.partner.isVIP) {
       remoteVipTag.classList.remove('hidden');
+      if (data.partner.hasVipStar) {
+        remoteVipTag.innerHTML = '<i class="fa-solid fa-star"></i> VIP★';
+        remoteVipTag.className = 'vip-tag-small star-active';
+      } else {
+        remoteVipTag.innerHTML = '<i class="fa-solid fa-crown"></i> VIP';
+        remoteVipTag.className = 'vip-tag-small';
+      }
     } else {
       remoteVipTag.classList.add('hidden');
     }
@@ -487,6 +494,13 @@ function updateUIForUser() {
 
     if (userProfile.isVIP) {
       userBadge.classList.remove('hidden');
+      if (userProfile.hasVipStar) {
+        userBadge.innerHTML = '<i class="fa-solid fa-star"></i> VIP★';
+        userBadge.className = 'vip-badge star-active';
+      } else {
+        userBadge.innerHTML = '<i class="fa-solid fa-crown"></i> VIP';
+        userBadge.className = 'vip-badge';
+      }
       vipPromoBanner.classList.add('hidden');
       // Unlock filters
       genderLock.classList.add('hidden');

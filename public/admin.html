@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم | KSAD LY Premium</title>
+  <title>لوحة التحكم | KSAD LY</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -315,6 +315,79 @@
         </div>
       </aside>
 
+    </div>
+
+    <!-- User Management Section (Full Width) -->
+    <section class="card" style="margin-top: 30px;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <h3><i class="fa-solid fa-users-gear text-primary"></i> إدارة المشتركين والتحكم بصلاحيات VIP</h3>
+        <div class="input-group" style="max-width: 300px; margin: 0;">
+          <input type="text" id="user-search-input" placeholder="🔍 ابحث عن اسم المستخدم..." style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%;">
+        </div>
+      </div>
+      <div class="card-body table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>اسم المستخدم</th>
+              <th>البلد / الجنس</th>
+              <th>حالة العضوية</th>
+              <th>تاريخ انتهاء VIP</th>
+              <th>نجمة VIP★</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="users-list">
+            <!-- Dynamically populated -->
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted);">جاري تحميل المشتركين...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- VIP Management Modal -->
+  <div class="modal-overlay" id="vip-modal">
+    <div class="modal-container">
+      <button class="modal-close" id="close-vip-modal"><i class="fa-solid fa-xmark"></i></button>
+      <h3 class="modal-title"><i class="fa-solid fa-crown text-warning"></i> تعديل اشتراك VIP وصلاحيات العضو</h3>
+      <p class="modal-desc" id="vip-modal-user-title">اسم المستخدم: user</p>
+      
+      <form id="vip-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        <input type="hidden" id="vip-target-username">
+        
+        <div class="filter-group">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="vip-is-vip" style="width: auto;">
+            <span>تفعيل اشتراك VIP لهذا العضو</span>
+          </label>
+        </div>
+
+        <div class="filter-group" id="vip-duration-group">
+          <label for="vip-duration">مدة الاشتراك:</label>
+          <select id="vip-duration" class="select-input" style="width: 100%; padding: 10px; background: #07090e; border: 1px solid var(--card-border); color: #fff; border-radius: 8px;">
+            <option value="1w">أسبوع واحد (7 أيام)</option>
+            <option value="1m" selected>شهر واحد (30 يوم)</option>
+            <option value="6m">6 أشهر (180 يوم)</option>
+            <option value="forever">مدى الحياة / غير محدود</option>
+          </select>
+        </div>
+
+        <div class="filter-group" id="vip-star-group">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="vip-has-star" style="width: auto;">
+            <span>منح النجمة الذهبية (VIP★) بجانب الاسم</span>
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+          <button type="submit" class="btn-success" style="padding: 10px 20px; border-radius: 8px; cursor: pointer;"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+          <button type="button" class="btn-secondary" id="cancel-vip-btn" style="padding: 10px 20px; border-radius: 8px; cursor: pointer;">إلغاء</button>
+        </div>
+      </form>
     </div>
   </div>
 
