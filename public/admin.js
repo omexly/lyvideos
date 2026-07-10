@@ -248,10 +248,65 @@ async function fetchUsers() {
     });
     if (!res.ok) return;
     allUsers = await res.json();
-    displayUsers(allUsers);
+    renderUserTable();
   } catch (err) {
     console.error('Error fetching users:', err);
   }
+}
+
+// Function to filter and paginate the user list
+function renderUserTable() {
+  const searchTerm = userSearchInput.value.trim().toLowerCase();
+  const prevPageBtn = document.getElementById('prev-page-btn');
+  const nextPageBtn = document.getElementById('next-page-btn');
+  const pageInfo = document.getElementById('page-info');
+  
+  // 1. Filter
+  const filtered = allUsers.filter(u => u.username.toLowerCase().includes(searchTerm));
+  
+  // 2. Calculate pagination
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+  }
+  if (currentPage < 1) {
+    currentPage = 1;
+  }
+
+  // 3. Slice items for current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedItems = filtered.slice(startIndex, endIndex);
+
+  // 4. Update UI labels & buttons
+  if (pageInfo) {
+    pageInfo.textContent = `صفحة ${currentPage} من ${totalPages}`;
+  }
+  
+  if (prevPageBtn) {
+    if (currentPage === 1) {
+      prevPageBtn.setAttribute('disabled', 'true');
+      prevPageBtn.style.opacity = '0.5';
+    } else {
+      prevPageBtn.removeAttribute('disabled');
+      prevPageBtn.style.opacity = '1';
+    }
+  }
+
+  if (nextPageBtn) {
+    if (currentPage === totalPages) {
+      nextPageBtn.setAttribute('disabled', 'true');
+      nextPageBtn.style.opacity = '0.5';
+    } else {
+      nextPageBtn.removeAttribute('disabled');
+      nextPageBtn.style.opacity = '1';
+    }
+  }
+
+  // 5. Render rows
+  displayUsers(paginatedItems);
 }
 
 // Render users into the table
@@ -311,14 +366,36 @@ function displayUsers(users) {
 }
 
 // User Search Handler
-userSearchInput.addEventListener('input', (e) => {
-  const term = e.target.value.trim().toLowerCase();
-  if (!term) {
-    displayUsers(allUsers);
-    return;
+userSearchInput.addEventListener('input', () => {
+  currentPage = 1;
+  renderUserTable();
+});
+
+// Setup Pagination Button Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const prevPageBtn = document.getElementById('prev-page-btn');
+  const nextPageBtn = document.getElementById('next-page-btn');
+  
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderUserTable();
+      }
+    });
   }
-  const filtered = allUsers.filter(u => u.username.toLowerCase().includes(term));
-  displayUsers(filtered);
+
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener('click', () => {
+      const searchTerm = userSearchInput.value.trim().toLowerCase();
+      const filtered = allUsers.filter(u => u.username.toLowerCase().includes(searchTerm));
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderUserTable();
+      }
+    });
+  }
 });
 
 // Open VIP Modal
