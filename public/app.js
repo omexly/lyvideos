@@ -1,4 +1,4 @@
-// OME TV Premium - Frontend Logic
+// KSAD LY Premium - Frontend Logic
 let localStream = null;
 let remoteStream = null;
 let peerConnection = null;
