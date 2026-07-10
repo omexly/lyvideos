@@ -483,9 +483,9 @@ body {
     position: absolute;
     width: 94%;
     left: 3%;
-    bottom: 65px;
+    bottom: 60px;
     height: auto;
-    max-height: 250px;
+    max-height: 290px;
     background: rgba(7, 9, 14, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
@@ -509,10 +509,10 @@ body {
 
   .floating-chat .chat-messages {
     flex: 1;
-    min-height: 80px;
-    max-height: 120px;
+    min-height: 110px;
+    max-height: 160px;
     overflow-y: auto;
-    padding: 6px 10px;
+    padding: 8px 10px;
   }
 
   .floating-chat .chat-input-area {
@@ -664,7 +664,10 @@ body {
 
   /* أزرار الميك والكاميرا على الموبايل */
   .media-toggles {
-    bottom: 8px;
+    top: 10px !important;
+    left: 10px !important;
+    bottom: auto !important;
+    transform: none !important;
     gap: 8px;
     z-index: 65;
   }
@@ -740,12 +743,11 @@ body {
 /* Local Video controls toggles overlay */
 .media-toggles {
   position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 12px;
+  left: 12px;
   display: flex;
   gap: 12px;
-  z-index: 10;
+  z-index: 20;
 }
 
 .media-btn {
