@@ -241,6 +241,7 @@ const vipIsVipCheckbox = document.getElementById('vip-is-vip');
 const vipDurationGroup = document.getElementById('vip-duration-group');
 const vipDurationSelect = document.getElementById('vip-duration');
 const vipHasStarCheckbox = document.getElementById('vip-has-star');
+const vipStarGroup = document.getElementById('vip-star-group');
 
 // Fetch and display all users
 async function fetchUsers() {
