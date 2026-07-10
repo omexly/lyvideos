@@ -656,6 +656,24 @@ body {
   .searching-loader .loader-text {
     font-size: 0.8rem;
   }
+
+  /* زر الإغلاق يظهر على الموبايل فقط */
+  .panel-close-btn {
+    display: flex !important;
+  }
+
+  /* أزرار الميك والكاميرا على الموبايل */
+  .media-toggles {
+    bottom: 8px;
+    gap: 8px;
+    z-index: 65;
+  }
+
+  .media-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 0.8rem;
+  }
 }
 
 
@@ -861,6 +879,31 @@ body {
   padding: 14px 20px;
   border-bottom: 1px solid var(--card-border);
   background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Panel close button (X) */
+.panel-close-btn {
+  display: none; /* Hidden on desktop */
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.panel-close-btn:active {
+  background: rgba(244, 63, 94, 0.4);
+  color: white;
 }
 
 .card-header h3 {

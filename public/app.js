@@ -622,6 +622,8 @@ function getCountryNameAr(code) {
 // Mobile Overlay Toggles
 const mobileChatToggle = document.getElementById('mobile-chat-toggle');
 const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+const closeChatBtn = document.getElementById('close-chat-btn');
+const closeFiltersBtn = document.getElementById('close-filters-btn');
 const floatingChat = document.querySelector('.floating-chat');
 const floatingFilters = document.querySelector('.floating-filters');
 
@@ -634,6 +636,19 @@ if (mobileChatToggle && mobileFilterToggle) {
   mobileFilterToggle.addEventListener('click', () => {
     floatingFilters.classList.toggle('open');
     floatingChat.classList.remove('open');
+  });
+}
+
+// Close buttons inside panels
+if (closeChatBtn) {
+  closeChatBtn.addEventListener('click', () => {
+    floatingChat.classList.remove('open');
+  });
+}
+
+if (closeFiltersBtn) {
+  closeFiltersBtn.addEventListener('click', () => {
+    floatingFilters.classList.remove('open');
   });
 }
 
