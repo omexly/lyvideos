@@ -328,7 +328,7 @@ const tryMatchUser = (socket) => {
     let isMatch = true;
 
     // If I am VIP and have filters
-    if (myData.isVIP) {
+    if (myData.isVIP || myData.hasVipStar) {
       if (myData.filters.gender && myData.filters.gender !== 'all' && candData.gender !== myData.filters.gender) {
         isMatch = false;
       }
@@ -338,7 +338,7 @@ const tryMatchUser = (socket) => {
     }
 
     // If Candidate is VIP and has filters
-    if (candData.isVIP && isMatch) {
+    if ((candData.isVIP || candData.hasVipStar) && isMatch) {
       if (candData.filters.gender && candData.filters.gender !== 'all' && myData.gender !== candData.filters.gender) {
         isMatch = false;
       }
@@ -409,9 +409,9 @@ io.on('connection', (socket) => {
             username: user.username,
             gender: user.gender,
             country: user.country,
-            isVIP: user.isVIP,
+            isVIP: user.isVIP || user.hasVipStar,
             hasVipStar: user.hasVipStar || false,
-            filters: user.isVIP ? (data.filters || { gender: 'all', country: 'all' }) : { gender: 'all', country: 'all' }
+            filters: (user.isVIP || user.hasVipStar) ? (data.filters || { gender: 'all', country: 'all' }) : { gender: 'all', country: 'all' }
           };
         }
       } catch (err) {

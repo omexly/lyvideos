@@ -492,7 +492,7 @@ function updateUIForUser() {
     userProfileArea.classList.remove('hidden');
     usernameDisplay.textContent = userProfile.username;
 
-    if (userProfile.isVIP) {
+    if (userProfile.isVIP || userProfile.hasVipStar) {
       userBadge.classList.remove('hidden');
       if (userProfile.hasVipStar) {
         userBadge.innerHTML = '<i class="fa-solid fa-star"></i> VIP★';
