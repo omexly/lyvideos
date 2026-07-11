@@ -308,6 +308,7 @@ let matchmakingQueue = [];
 const activeConnections = new Map(); // socket.id -> partnerSocket
 
 const tryMatchUser = (socket) => {
+  if (!socket || !socket.userData) return; // حماية السيرفر من الانهيار إذا انفصل الاتصال
   if (activeConnections.has(socket.id)) return; // Already in a match
 
   const index = matchmakingQueue.findIndex(s => s.id === socket.id);
@@ -318,6 +319,7 @@ const tryMatchUser = (socket) => {
   // Search queue for potential match
   for (let i = 0; i < matchmakingQueue.length; i++) {
     const candidate = matchmakingQueue[i];
+    if (!candidate || !candidate.userData) continue; // حماية السيرفر من المرشحين المنفصلين
     if (candidate.id === socket.id) continue;
     if (activeConnections.has(candidate.id)) continue;
 
